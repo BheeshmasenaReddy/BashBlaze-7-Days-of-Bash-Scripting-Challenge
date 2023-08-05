@@ -4,11 +4,14 @@
 function display_menu() {
     echo "Welcome to the Restaurant!"
     echo "Menu:"
-    # TODO: Read the menu from menu.txt and display item numbers and prices
-    # Format: 1. Burger - ₹120
-    #        2. Pizza - ₹250
-    #        3. Salad - ₹180
-    #        ...
+    file='menu.txt'  
+  
+    i=1  
+    while read line; do  
+    #Reading each line  
+        echo "$i $line" | awk '{print $1". "substr($2,1,length($2)-1) " - ₹" $3}'
+        i=$((i+1))  
+    done < $file
 }
 
 # Function to calculate the total bill
@@ -22,6 +25,14 @@ function calculate_total_bill() {
     #          order[1]=2, order[3]=1
     # The total bill should be the sum of (price * quantity) for each item in the order.
     # Store the calculated total in the "total" variable.
+    file="menu.txt"
+
+    for i in ${!order[@]}; do
+        price=$(head -n $i $file | tail -1 | awk '{print substr($2,1,length($2)-1) }')
+        quant=${order[$i]}
+        quant_price=$(( $quant * $price ))
+        total=$((total + $quant_price))
+    done
     echo "$total"
 }
 
@@ -37,6 +48,7 @@ display_menu
 # TODO: Ask the customer for their name and store it in a variable "customer_name"
 
 # Ask for the order
+
 echo "Please enter the item number and quantity (e.g., 1 2 for two Burgers):"
 read -a input_order
 
@@ -46,12 +58,14 @@ for (( i=0; i<${#input_order[@]}; i+=2 )); do
     item_number="${input_order[i]}"
     quantity="${input_order[i+1]}"
     # TODO: Add the item number and quantity to the "order" array
+    order[$item_number]=$quantity
 done
+
 
 # Calculate the total bill
 total_bill=$(calculate_total_bill)
+echo "$total_bill"
 
 # Display the total bill with a personalized thank-you message
 # TODO: Display a thank-you message to the customer along with the total bill
 # The message format: "Thank you, <customer_name>! Your total bill is ₹<total_bill>."
-

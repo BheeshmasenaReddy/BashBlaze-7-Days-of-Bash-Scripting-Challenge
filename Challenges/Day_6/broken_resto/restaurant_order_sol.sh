@@ -26,7 +26,7 @@ function calculate_total_bill() {
     # The total bill should be the sum of (price * quantity) for each item in the order.
     # Store the calculated total in the "total" variable.
     file="menu.txt"
-
+    # Loop to calculate total bill using orders array
     for i in ${!order[@]}; do
         price=$(head -n $i $file | tail -1 | awk '{print substr($2,1,length($2)-1) }')
         quant=${order[$i]}
@@ -51,7 +51,23 @@ display_menu
 
 echo "Please enter the item number and quantity (e.g., 1 2 for two Burgers):"
 read -a input_order
-
+echo ${input_order[@]}
+# Loop to check if all inputs are valid
+for i in ${!input_order[@]}; do
+    if  [[ $(( $i %2 )) == 0 ]]; then
+        if [[ ${input_order[$i]} -gt $( wc -l "menu.txt" | awk '{print $1}' ) ]]; then
+            handle_invalid_input
+            echo "Invalid item! Please enter a valid item number"
+            exit
+        fi
+    else
+        if [[ ${input_order[$i]} -le 0 ]]; then
+            handle_invalid_input
+            echo "Invalid Quantity! Please enter quantity more than 0."
+            exit
+        fi
+    fi
+done
 # Process the customer's order
 declare -A order
 for (( i=0; i<${#input_order[@]}; i+=2 )); do
@@ -64,8 +80,9 @@ done
 
 # Calculate the total bill
 total_bill=$(calculate_total_bill)
-echo "$total_bill"
 
 # Display the total bill with a personalized thank-you message
 # TODO: Display a thank-you message to the customer along with the total bill
 # The message format: "Thank you, <customer_name>! Your total bill is ₹<total_bill>."
+read -p "Kindly Provide Your Name: " name
+echo "Thank you, $name! Your total bill is ₹$total_bill."

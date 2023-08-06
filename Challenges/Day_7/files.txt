@@ -1,0 +1,3 @@
+Dockerfile
+index.html
+deploy_app.sh

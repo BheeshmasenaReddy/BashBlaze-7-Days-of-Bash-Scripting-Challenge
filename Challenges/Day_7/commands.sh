@@ -1,0 +1,3 @@
+ifconfig
+whomai
+uname -r
